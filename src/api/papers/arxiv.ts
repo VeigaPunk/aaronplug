@@ -21,13 +21,13 @@
 //   - Do NOT add heavy tar libraries if avoidable — a 100-line parser is fine (tar is
 //     a simple blocked format: 512-byte header + file body padded to 512).
 //
-// MARK USER-AGENT: "aaron/0.1 (https://github.com/VeigaPunk/epublicdomain)".
+// MARK USER-AGENT: "aaron/0.1 (https://github.com/VeigaPunk/aaronplug)".
 // DO NOT hammer export.arxiv.org — one resolve, one fetch per call.
 
 import { gunzipSync } from "node:zlib";
 import type { PaperResult } from "./index";
 
-const UA = "aaron/0.1 (+https://github.com/VeigaPunk/epublicdomain)";
+const UA = "aaron/0.1 (+https://github.com/VeigaPunk/aaronplug)";
 
 function extractArxivId(feedXml: string): string | null {
   // Match the entry <id> (not the feed-level <id>)
