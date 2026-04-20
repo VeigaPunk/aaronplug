@@ -19,7 +19,7 @@ export async function fetchSemanticScholar(doi: string): Promise<PaperResult> {
   const res = await fetch(url, {
     headers: {
       "Accept": "application/json",
-      "User-Agent": "aaron/0.1 (+https://github.com/VeigaPunk/epublicdomain)",
+      "User-Agent": "aaron/0.1 (+https://github.com/VeigaPunk/aaronplug)",
     },
   });
 

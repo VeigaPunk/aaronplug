@@ -9,8 +9,8 @@
 ## Install
 
 ```bash
-git clone https://github.com/VeigaPunk/epublicdomain
-cd epublicdomain
+git clone https://github.com/VeigaPunk/aaronplug
+cd aaronplug
 bun install
 bun link          # makes `aaron` globally available on $PATH
 ```
@@ -68,7 +68,7 @@ aaron books url 13c11d86028143eccc200e2e31af8511
 # → {"md5":"...","url":"https://..."}
 ```
 
-Mirror list is fetched from the upstream configuration: `https://github.com/VeigaPunk/epublicdomain/blob/configuration/config.v3.json`.
+Mirror list is fetched from the upstream configuration: `https://github.com/VeigaPunk/aaronplug/blob/configuration/config.v3.json`.
 
 ---
 
@@ -167,7 +167,7 @@ src/
 
 ## Origin
 
-Forked from [`epubdomain-downloader`](https://github.com/VeigaPunk/epublicdomain) (v3.3.1) by Omercan Balandi. The React/Ink TUI layer was removed; the `libgen-plus` adapter preserved. Papers support and POSIX-JSON output contract are new to aaron.
+Forked from [`epubdomain-downloader`](https://github.com/VeigaPunk/aaronplug) (v3.3.1) by Omercan Balandi. The React/Ink TUI layer was removed; the `libgen-plus` adapter preserved. Papers support and POSIX-JSON output contract are new to aaron.
 
 ## License
 

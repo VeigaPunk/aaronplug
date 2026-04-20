@@ -7,7 +7,7 @@
   "bin": {
     "aaron": "./build/aaron.js"
   },
-  "homepage": "https://github.com/VeigaPunk/epublicdomain",
+  "homepage": "https://github.com/VeigaPunk/aaronplug",
   "scripts": {
     "start": "bun run src/index.ts",
     "build": "bun build src/index.ts --target node --outfile ./build/aaron.js && echo '#!/usr/bin/env node' | cat - ./build/aaron.js > ./build/temp && mv ./build/temp ./build/aaron.js && chmod +x ./build/aaron.js",
@@ -36,7 +36,7 @@
   "license": "WTFPL",
   "repository": {
     "type": "git",
-    "url": "https://github.com/VeigaPunk/epublicdomain.git"
+    "url": "https://github.com/VeigaPunk/aaronplug.git"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
