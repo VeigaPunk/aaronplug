@@ -7,12 +7,14 @@ interface downloadFileArguments {
   downloadStream: Response;
   onStart: (filename: string, total: number) => void;
   onData: (filename: string, chunk: Buffer, total: number) => void;
+  outputDir?: string;
 }
 
 export const downloadFile = async ({
   downloadStream,
   onStart,
   onData,
+  outputDir,
 }: downloadFileArguments): Promise<DownloadResult> => {
   const MAX_FILE_NAME_LENGTH = 128;
 
@@ -25,8 +27,10 @@ export const downloadFile = async ({
   const fullFileName = parsedContentDisposition.parameters.filename;
   const slicedFileName = fullFileName.slice(
     Math.max(fullFileName.length - MAX_FILE_NAME_LENGTH, 0)
-  );
-  const path = `./${slicedFileName}`;
+  ).normalize("NFC");
+  const baseDir = outputDir || ".";
+  const path = `${baseDir}/${slicedFileName}`;
+  const tmpPath = `${path}.partial.${process.pid}.${Date.now()}`;
 
   const total = Number(downloadStream.headers.get("content-length") || 0);
   const filename = parsedContentDisposition.parameters.filename;
@@ -35,9 +39,13 @@ export const downloadFile = async ({
     throw new Error("No response body");
   }
 
+  if (fs.existsSync(path)) {
+    throw new Error(`(${filename}) Refusing to overwrite existing file at ${path}`);
+  }
+
   onStart(filename, total);
 
-  const file = fs.createWriteStream(path);
+  const file = fs.createWriteStream(tmpPath, { flags: "wx" });
   const reader = downloadStream.body.getReader();
 
   try {
@@ -57,6 +65,8 @@ export const downloadFile = async ({
       file.on("error", reject);
     });
 
+    await fs.promises.rename(tmpPath, path);
+
     const downloadResult: DownloadResult = {
       path,
       filename,
@@ -66,6 +76,7 @@ export const downloadFile = async ({
     return downloadResult;
   } catch {
     file.destroy();
+    try { await fs.promises.unlink(tmpPath); } catch { /* tmp may not exist */ }
     throw new Error(`(${filename}) Error occurred while downloading file`);
   }
 };
