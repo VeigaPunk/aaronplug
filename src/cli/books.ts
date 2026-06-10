@@ -149,7 +149,7 @@ async function batch(filePath: string, outputDir?: string) {
   }
 }
 
-// Programmatic entry points — also used by the MCP server.
+// Programmatic entry points for in-process callers.
 export const booksApi = { search, get, url, batch };
 
 export async function runBooks(argv: string[]): Promise<void> {

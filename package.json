@@ -2,7 +2,7 @@
   "name": "@veigapunk/aaron",
   "version": "0.1.0",
   "type": "module",
-  "description": "aaron — a minimal model-callable tool for fetching public-domain books (lib*) and papers (sci*/arxiv/semantic-scholar). CLI + MCP stdio server.",
+  "description": "aaron — a minimal model-callable CLI for fetching public-domain books (lib*) and papers (sci*/arxiv/semantic-scholar). Compact JSON to stdout.",
   "main": "./build/aaron.js",
   "bin": {
     "aaron": "./build/aaron.js"
@@ -33,7 +33,7 @@
     "agent-tool"
   ],
   "author": "VeigaPunk",
-  "license": "WTFPL",
+  "license": "CC0-1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/VeigaPunk/aaronplug.git"
