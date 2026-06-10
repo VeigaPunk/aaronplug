@@ -63,8 +63,8 @@ stdout is always compact JSON. stderr is human diagnostics. `exit 0` = success, 
 aaron <command> [options]
 
 books search <query> [--format <ext>] [--language <lang>]   Search lib* mirrors
-books get    <md5>   [--output-dir <path>]  Download one book
-books batch  <md5-list-file> [-o <path>]    Download many books
+books get    <md5>   [--output-dir <path>]  Download one book          (default: /Users/Aaron/Library)
+books batch  <md5-list-file> [-o <path>]    Download many books        (default: /Users/Aaron/Library)
 books url    <md5>                          Resolve direct download URL
 
 papers fetch <doi>   [--mode <tier>]        Fetch paper text

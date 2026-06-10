@@ -166,7 +166,7 @@ export async function runBooks(argv: string[]): Promise<void> {
     flags: {
       format: { type: "string", shortFlag: "f", default: "epub" },
       language: { type: "string", shortFlag: "l", default: "english" },
-      outputDir: { type: "string", shortFlag: "o" },
+      outputDir: { type: "string", shortFlag: "o", default: "/Users/Aaron/Library" },
     },
   });
 
