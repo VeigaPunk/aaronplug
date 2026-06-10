@@ -20,7 +20,7 @@ async function initAdapter() {
   return getAdapter(mirror.src, mirror.type);
 }
 
-async function search(query: string, format?: string) {
+async function search(query: string, format?: string, language?: string) {
   const adapter = await initAdapter();
   const searchUrl = adapter.getSearchURL(query, 1, SEARCH_PAGE_SIZE);
   const result = await attempt(() => getDocument(searchUrl));
@@ -44,6 +44,12 @@ async function search(query: string, format?: string) {
   if (format && format !== "all") {
     results = results.filter(
       (entry) => entry.extension.toLowerCase() === format.toLowerCase()
+    );
+  }
+
+  if (language && language !== "all") {
+    results = results.filter(
+      (entry) => entry.language.toLowerCase() === language.toLowerCase()
     );
   }
 
@@ -159,6 +165,7 @@ export async function runBooks(argv: string[]): Promise<void> {
     importMeta: import.meta,
     flags: {
       format: { type: "string", shortFlag: "f", default: "epub" },
+      language: { type: "string", shortFlag: "l", default: "english" },
       outputDir: { type: "string", shortFlag: "o" },
     },
   });
@@ -170,7 +177,7 @@ export async function runBooks(argv: string[]): Promise<void> {
         process.stdout.write(JSON.stringify({ error: "Query must be at least 3 characters long" }) + "\n");
         return;
       }
-      await search(query, parsed.flags.format);
+      await search(query, parsed.flags.format, parsed.flags.language);
       return;
     }
     case "get":

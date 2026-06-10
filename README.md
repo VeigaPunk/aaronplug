@@ -16,16 +16,23 @@ cd aaronplug && bun install && bun link   # puts `aaron` on your $PATH
 **2. Fetch books**
 
 ```bash
-aaron books search "moby dick"                      # search — returns JSON list (epub only by default)
-aaron books search "moby dick" --format all         # all formats: epub, pdf, djvu, etc.
-aaron books search "moby dick" --format pdf         # force a specific format
-aaron books get <md5> -o ./downloads                # download one book
-aaron books batch ./md5s.txt -o ./downloads         # download many
+aaron books search "moby dick"                            # epub + english (defaults)
+aaron books search "moby dick" --format all               # all formats
+aaron books search "moby dick" --format pdf               # specific format
+aaron books search "moby dick" --language all             # all languages
+aaron books search "tolstoy" --format all --language all  # no filters
+aaron books get <md5> -o ./downloads                      # download one book
+aaron books batch ./md5s.txt -o ./downloads               # download many
 ```
 
-**Format cascade (important):** The mirror returns up to 25 results per search, then `aaron` filters them client-side by `extension`. Default is `epub`. Use `--format all` to see every format, then pick the `md5` you want from the JSON. If you search for a specific format and get 0 results, the book likely exists — just under a different extension.
+**Search cascade (important):** The mirror returns up to 25 raw results, then `aaron` filters client-side. Both filters default to narrow:
 
-**Language (agent must filter):** There is no `--language` flag. Every result includes a `"language"` field (e.g. `"English"`, `"Russian"`). If language matters, filter the results array yourself after calling `books search`.
+| flag | default | override |
+|------|---------|---------|
+| `--format` / `-f` | `epub` | any extension (`pdf`, `djvu`, …) or `all` |
+| `--language` / `-l` | `english` | any language string or `all` |
+
+If a search returns 0 results, try `--format all --language all` first — the book almost certainly exists, just filtered out.
 
 **3. Fetch papers**
 
@@ -55,7 +62,7 @@ stdout is always compact JSON. stderr is human diagnostics. `exit 0` = success, 
 ```
 aaron <command> [options]
 
-books search <query> [--format <ext>]       Search lib* mirrors
+books search <query> [--format <ext>] [--language <lang>]   Search lib* mirrors
 books get    <md5>   [--output-dir <path>]  Download one book
 books batch  <md5-list-file> [-o <path>]    Download many books
 books url    <md5>                          Resolve direct download URL
