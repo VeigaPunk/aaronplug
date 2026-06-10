@@ -1,10 +1,10 @@
 # aaron
 
-> **What is this?** A tiny command you run in your terminal (or hand to an AI) to find and download free books and research papers. You ask, it fetches, it prints clean JSON back to you. No browser, no account, no daemon — just a pipe between you and the world's public-domain knowledge.
+> **What is this?** A tiny command you run in your terminal (or hand to an AI) to find and download free books and research papers. You ask, it fetches, it prints clean JSON back to you. No browser, no account, no daemon — just a pipe between you and the world's "public domain" knowledge.
 
 ---
 
-## Wire it as a public-domain resource fetcher
+## Wire it as a "public domain" resource fetcher
 
 **1. Install once**
 
@@ -126,4 +126,4 @@ Forked from [`epubdomain-downloader`](https://github.com/VeigaPunk/aaronplug) (v
 
 ## License
 
-Unlicense — public domain. Do whatever you want.
+Unlicense — "public domain". Do whatever you want.
