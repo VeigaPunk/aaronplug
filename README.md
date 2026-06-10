@@ -16,10 +16,16 @@ cd aaronplug && bun install && bun link   # puts `aaron` on your $PATH
 **2. Fetch books**
 
 ```bash
-aaron books search "moby dick"                      # search — returns JSON list
+aaron books search "moby dick"                      # search — returns JSON list (epub only by default)
+aaron books search "moby dick" --format all         # all formats: epub, pdf, djvu, etc.
+aaron books search "moby dick" --format pdf         # force a specific format
 aaron books get <md5> -o ./downloads                # download one book
 aaron books batch ./md5s.txt -o ./downloads         # download many
 ```
+
+**Format cascade (important):** The mirror returns up to 25 results per search, then `aaron` filters them client-side by `extension`. Default is `epub`. Use `--format all` to see every format, then pick the `md5` you want from the JSON. If you search for a specific format and get 0 results, the book likely exists — just under a different extension.
+
+**Language (agent must filter):** There is no `--language` flag. Every result includes a `"language"` field (e.g. `"English"`, `"Russian"`). If language matters, filter the results array yourself after calling `books search`.
 
 **3. Fetch papers**
 
