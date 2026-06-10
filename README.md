@@ -1,35 +1,50 @@
 # aaron
 
-`aaron` is a minimal POSIX CLI that fetches **public-domain books** (via `lib*` mirrors) and **academic papers** (via `arxiv`, `semantic-scholar`, and `sci*` fallback). It emits compact JSON to stdout. Any agent with a shell / Bash tool — Claude Code, Codex CLI, Gemini CLI — can call it directly. No MCP server, no daemon, no wrapper.
-
-> "We are trendsetters — we adapt tools to our needs." No wire-protocol ceremony. stdout is the contract.
+> **What is this?** A tiny command you run in your terminal (or hand to an AI) to find and download free books and research papers. You ask, it fetches, it prints clean JSON back to you. No browser, no account, no daemon — just a pipe between you and the world's public-domain knowledge.
 
 ---
 
-## Install
+## Wire it as a public-domain resource fetcher
+
+**1. Install once**
 
 ```bash
 git clone https://github.com/VeigaPunk/aaronplug
-cd aaronplug
-bun install
-bun link          # makes `aaron` globally available on $PATH
+cd aaronplug && bun install && bun link   # puts `aaron` on your $PATH
 ```
 
-Build a standalone bundle:
+**2. Fetch books**
 
 ```bash
-bun run build     # emits ./build/aaron.js (node target, shebanged)
+aaron books search "moby dick"                      # search — returns JSON list
+aaron books get <md5> -o ./downloads                # download one book
+aaron books batch ./md5s.txt -o ./downloads         # download many
 ```
 
-Compile to a static binary (no Bun/Node needed at runtime):
+**3. Fetch papers**
 
 ```bash
-bun run compile   # emits ./standalone-executables/aaron-<platform>-<arch>
+aaron papers fetch 10.1038/nature12373              # auto-cascade: arxiv → s2 → scihub
+aaron papers fetch 10.48550/arXiv.1706.03762 --mode arxiv   # force arxiv
 ```
+
+**4. Wire to any AI agent** — put `aaron` on `$PATH` (done by `bun link`), then call it with any Bash/shell tool. No registration, no MCP server needed.
+
+```bash
+# Claude Code — works out of the box after bun link:
+Bash(command="aaron books search 'darwin origin of species'")
+Bash(command="aaron papers fetch 10.1038/nature12373")
+
+# Codex CLI / Gemini CLI — same, they both exec shell commands directly.
+# For large sci-hub outputs in Gemini, set a higher token budget:
+#   "toolSettings": { "run_shell_command": { "tokenBudget": 40000 } }
+```
+
+stdout is always compact JSON. stderr is human diagnostics. `exit 0` = success, `exit 1` = `{"error":"..."}`.
 
 ---
 
-## Usage
+## Full command reference
 
 ```
 aaron <command> [options]
@@ -44,32 +59,6 @@ papers fetch <doi>   [--mode <tier>]        Fetch paper text
 help                                        Show this message
 ```
 
-### Output contract
-
-- **stdout** is **compact JSON** — one object per invocation, no pretty-printing, no wrapper.
-- **stderr** is human-readable diagnostics (progress, mirror failures). Most agents ignore it.
-- **exit 0** = success. **exit 1** = error; stdout will be `{"error":"..."}`.
-
----
-
-## Books — examples
-
-```bash
-aaron books search "tolstoy war and peace"
-# → {"query":"tolstoy war and peace","count":7,"results":[{...},{...}]}
-
-aaron books get 13c11d86028143eccc200e2e31af8511 -o ./downloads
-# → {"md5":"...","path":"./downloads/...","filename":"...","size":1234567}
-
-aaron books batch ./MD5_LIST.txt -o ./downloads
-# → one {"md5":...,"path":...} line per entry
-
-aaron books url 13c11d86028143eccc200e2e31af8511
-# → {"md5":"...","url":"https://..."}
-```
-
-Mirror list is fetched from the upstream configuration: `https://github.com/VeigaPunk/aaronplug/blob/configuration/config.v3.json`.
-
 ---
 
 ## Papers — three-tier cascade
@@ -81,19 +70,6 @@ Mirror list is fetched from the upstream configuration: `https://github.com/Veig
 | 1     | `scihub` | sci-hub HTML→PDF    | `markdown`| full text via `@opendocsg/pdf2md`|
 | 2     | `arxiv`  | arxiv e-print tar   | `latex`   | STEM preprints (full source)     |
 | 3     | `s2`     | Semantic Scholar    | `abstract`| metadata-only last resort        |
-
-Force a single tier with `--mode arxiv|s2|scihub`.
-
-```bash
-# Auto cascade — tries arxiv, then s2, then scihub
-aaron papers fetch 10.1038/nature12373
-
-# Force arxiv
-aaron papers fetch 10.48550/arXiv.1706.03762 --mode arxiv
-
-# Force full-text via sci-hub + PDF→markdown (no Python; pure TS)
-aaron papers fetch 10.1103/PhysRevLett.116.061102 --mode scihub
-```
 
 Response shape (always):
 
@@ -109,34 +85,11 @@ Response shape (always):
 
 ---
 
-## Agent integration
-
-All three CLIs pass `stdout` verbatim to the model as a string. None of them sniff JSON — the model parses it. Therefore:
-
-### Claude Code
+## Build / compile
 
 ```bash
-# Just put aaron on $PATH; no registration needed.
-bun link
-# Then in any Claude Code session:
-# Model invokes: Bash(command="aaron books search 'tolstoy'")
-```
-
-Note: Claude Code persists outputs >100KB to disk and hands the model a preview + path. Large sci-hub markdown outputs may trigger this — not a bug, just how the harness works.
-
-### Codex CLI
-
-```bash
-# Same — PATH-level registration. Codex uses bash -c for tool calls.
-aaron --help   # confirm on PATH
-```
-
-### Gemini CLI
-
-```bash
-# Same — invoked via Gemini's run_shell_command built-in tool.
-# Optionally set a tokenBudget in settings.json if sci-hub outputs are large:
-#   "toolSettings": { "run_shell_command": { "tokenBudget": 40000 } }
+bun run build     # emits ./build/aaron.js (node target, shebanged)
+bun run compile   # emits ./standalone-executables/aaron-<platform>-<arch>
 ```
 
 ---
@@ -151,17 +104,19 @@ src/
 │   ├── papers.ts            papers subcommand
 │   └── help.ts              help text
 ├── api/
-│   ├── adapters/            lib* mirror adapters (preserved from v3.x)
+│   ├── adapters/            lib* mirror adapters
 │   ├── data/                mirror config, document fetch, file download
 │   ├── models/              Entry, DownloadResult types
 │   └── papers/
 │       ├── index.ts         cascade orchestrator
-│       ├── arxiv.ts         tier 1 — DOI→arxivId→e-print tarball→tex
-│       ├── semantic-scholar.ts   tier 2 — /graph/v1/paper/DOI
-│       └── scihub.ts        tier 3 — HTML parse → PDF → pdf2md
+│       ├── arxiv.ts         DOI→arxivId→e-print tarball→tex
+│       ├── semantic-scholar.ts   /graph/v1/paper/DOI
+│       └── scihub.ts        HTML parse → PDF → pdf2md
 ├── settings.ts              constants
 └── utilities.ts             `attempt` retry helper, text clean
 ```
+
+Mirror list is fetched from: `https://github.com/VeigaPunk/aaronplug/blob/configuration/config.v3.json`
 
 ---
 
@@ -171,4 +126,4 @@ Forked from [`epubdomain-downloader`](https://github.com/VeigaPunk/aaronplug) (v
 
 ## License
 
-WTFPL.
+Unlicense — public domain. Do whatever you want.
