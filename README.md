@@ -1,142 +1,86 @@
 # aaron
 
-> **What is this?** A tiny command you run in your terminal (or hand to an AI) to find and download free books and research papers. You ask, it fetches, it prints clean JSON back to you. No browser, no account, no daemon — just a pipe between you and the world's ""public domain"" knowledge.
+**Download almost any research paper or book straight from your terminal — just ask for it in plain English.**
+
+You talk to your AI assistant (Claude Code, Codex, Gemini CLI). It runs `aaron` for you. The paper or book lands on your disk. No browser, no account, no sign-up.
 
 ---
 
-## Wire it as a ""public domain"" resource fetcher
+## What it feels like
 
-**1. Install once**
+You type this to your terminal AI:
+
+> "grab me the Attention Is All You Need paper"
+
+> "download Moby Dick as an epub"
+
+> "find me Tolstoy's War and Peace"
+
+…and the file shows up. That's the whole idea.
+
+---
+
+## Install (once)
+
+You need [Bun](https://bun.sh). Then:
 
 ```bash
 git clone https://github.com/VeigaPunk/aaronplug
-cd aaronplug && bun install && bun link   # puts `aaron` on your $PATH
+cd aaronplug
+bun install
+bun run build
+bun link          # puts the `aaron` command on your PATH
 ```
 
-**2. Fetch books**
+That's it. Now any AI in your terminal can use it, because `aaron` is just a normal command.
+
+---
+
+## Using it yourself (optional)
+
+You don't have to — asking your AI is the point — but the raw commands are simple:
+
+**Books**
 
 ```bash
-aaron books search "moby dick"                            # epub + english (defaults)
-aaron books search "moby dick" --format all               # all formats
-aaron books search "moby dick" --format pdf               # specific format
-aaron books search "moby dick" --language all             # all languages
-aaron books search "tolstoy" --format all --language all  # no filters
-aaron books get <md5> -o ./downloads                      # download one book
-aaron books batch ./md5s.txt -o ./downloads               # download many
+aaron books search "moby dick"        # find it
+aaron books get <id>                  # download it → ~/aaron-library
 ```
 
-**Search cascade (important):** The mirror returns up to 25 raw results, then `aaron` filters client-side. Both filters default to narrow:
-
-| flag | default | override |
-|------|---------|---------|
-| `--format` / `-f` | `epub` | any extension (`pdf`, `djvu`, …) or `all` |
-| `--language` / `-l` | `english` | any language string or `all` |
-
-If a search returns 0 results, try `--format all --language all` first — the book almost certainly exists, just filtered out.
-
-**3. Fetch papers**
+**Papers** (give it a DOI or arXiv id)
 
 ```bash
-aaron papers fetch 10.1038/nature12373              # auto-cascade: arxiv → s2 → scihub
-aaron papers fetch 10.48550/arXiv.1706.03762 --mode arxiv   # force arxiv
+aaron papers fetch 10.1038/nature12373
 ```
 
-**4. Wire to any AI agent** — put `aaron` on `$PATH` (done by `bun link`), then call it with any Bash/shell tool. No registration, no MCP server needed.
+Books download to `~/aaron-library` by default. Add `-o ./somewhere` to change that.
+
+---
+
+## Why it works with any AI
+
+`aaron` prints clean JSON and nothing else. Ask, it fetches, it hands the result back to your assistant to read. Because it's a plain command on your PATH, **no setup is needed inside Claude Code, Codex, or Gemini** — they can already run shell commands.
+
+Example, the way an AI calls it under the hood:
 
 ```bash
-# Claude Code — works out of the box after bun link:
-Bash(command="aaron books search 'darwin origin of species'")
-Bash(command="aaron papers fetch 10.1038/nature12373")
-
-# Codex CLI / Gemini CLI — same, they both exec shell commands directly.
-# For large sci-hub outputs in Gemini, set a higher token budget:
-#   "toolSettings": { "run_shell_command": { "tokenBudget": 40000 } }
-```
-
-stdout is always compact JSON. stderr is human diagnostics. `exit 0` = success, `exit 1` = `{"error":"..."}`.
-
----
-
-## Full command reference
-
-```
-aaron <command> [options]
-
-books search <query> [--format <ext>] [--language <lang>]   Search lib* mirrors
-books get    <md5>   [--output-dir <path>]  Download one book          (default: /Users/Aaron/Library)
-books batch  <md5-list-file> [-o <path>]    Download many books        (default: /Users/Aaron/Library)
-books url    <md5>                          Resolve direct download URL
-
-papers fetch <doi>   [--mode <tier>]        Fetch paper text
-                                            tier: auto | arxiv | s2 | scihub
-help                                        Show this message
+aaron books search "darwin origin of species"
+aaron papers fetch 10.48550/arXiv.1706.03762
 ```
 
 ---
 
-## Papers — three-tier cascade
+## Where it looks
 
-`aaron papers fetch <DOI>` tries sources in order and returns the first that succeeds:
-
-| order | tier     | source              | format    | best for                         |
-| ----- | -------- | ------------------- | --------- | -------------------------------- |
-| 1     | `scihub` | sci-hub HTML→PDF    | `markdown`| full text via `@opendocsg/pdf2md`|
-| 2     | `arxiv`  | arxiv e-print tar   | `latex`   | STEM preprints (full source)     |
-| 3     | `s2`     | Semantic Scholar    | `abstract`| metadata-only last resort        |
-
-Response shape (always):
-
-```json
-{
-  "doi": "10.1038/nature12373",
-  "tier": "arxiv",
-  "format": "latex",
-  "text": "\\documentclass{nature}\n\\title{...}\n...",
-  "meta": { "arxivId": "1304.1068", "tarballBytes": 123456 }
-}
-```
+- **Books** → the `lib*` mirror network.
+- **Papers** → tries `arxiv` → `sci-hub` → Semantic Scholar, in that order, and returns the first hit (full text when it can, abstract as a last resort).
 
 ---
 
-## Build / compile
+## The fine print
 
-```bash
-bun run build     # emits ./build/aaron.js (node target, shebanged)
-bun run compile   # emits ./standalone-executables/aaron-<platform>-<arch>
-```
+Unlicense — public domain. Do whatever you want with it.
 
----
+Use it for what your local law allows. This is a convenience wrapper around sources that already exist on the open internet; you're responsible for how you use it.
 
-## Architecture
-
-```
-src/
-├── index.ts                 top-level argv router (books | papers | help)
-├── cli/
-│   ├── books.ts             books subcommand + programmatic booksApi
-│   ├── papers.ts            papers subcommand
-│   └── help.ts              help text
-├── api/
-│   ├── adapters/            lib* mirror adapters
-│   ├── data/                mirror config, document fetch, file download
-│   ├── models/              Entry, DownloadResult types
-│   └── papers/
-│       ├── index.ts         cascade orchestrator
-│       ├── arxiv.ts         DOI→arxivId→e-print tarball→tex
-│       ├── semantic-scholar.ts   /graph/v1/paper/DOI
-│       └── scihub.ts        HTML parse → PDF → pdf2md
-├── settings.ts              constants
-└── utilities.ts             `attempt` retry helper, text clean
-```
-
-Mirror list is fetched from: `https://github.com/VeigaPunk/aaronplug/blob/configuration/config.v3.json`
-
----
-
-## Origin
-
-Forked from [`epubdomain-downloader`](https://github.com/VeigaPunk/aaronplug) (v3.3.1) by Omercan Balandi. The React/Ink TUI layer was removed; the `libgen-plus` adapter preserved. Papers support and POSIX-JSON output contract are new to aaron.
-
-## License
-
-Unlicense — ""public domain"". Do whatever you want.
+<sub>Named for Aaron Swartz. Forked from `epubdomain-downloader` by Omercan Balandi — the TUI was stripped out and paper-fetching + JSON output added so any model can drive it.</sub>

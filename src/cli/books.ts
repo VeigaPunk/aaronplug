@@ -1,5 +1,9 @@
 // eslint-disable-next-line unicorn/prefer-node-protocol
 import fs from "fs";
+// eslint-disable-next-line unicorn/prefer-node-protocol
+import os from "os";
+// eslint-disable-next-line unicorn/prefer-node-protocol
+import path from "path";
 import meow from "meow";
 import { getDocument } from "../api/data/document";
 import { fetchConfig, findMirror } from "../api/data/config";
@@ -166,7 +170,7 @@ export async function runBooks(argv: string[]): Promise<void> {
     flags: {
       format: { type: "string", shortFlag: "f", default: "epub" },
       language: { type: "string", shortFlag: "l", default: "english" },
-      outputDir: { type: "string", shortFlag: "o", default: "/Users/Aaron/Library" },
+      outputDir: { type: "string", shortFlag: "o", default: path.join(os.homedir(), "aaron-library") },
     },
   });
 
