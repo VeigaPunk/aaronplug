@@ -1,6 +1,6 @@
 # aaron
 
-**Download almost any research paper or book straight from your terminal — just ask for it in plain English.**
+**Download almost any research paper or ""public domain"" book straight from your terminal — just ask for it in plain English.**
 
 You talk to your AI assistant (Claude Code, Codex, Gemini CLI). It runs `aaron` for you. The paper or book lands on your disk. No browser, no account, no sign-up.
 
