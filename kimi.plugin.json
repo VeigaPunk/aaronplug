@@ -1,0 +1,24 @@
+{
+  "name": "aaronplug",
+  "version": "0.4.0",
+  "description": "aaron CLI tool — Bash-invocable book/paper fetcher (not an agent)",
+  "author": {
+    "name": "VeigaPunk"
+  },
+  "homepage": "https://github.com/VeigaPunk/aaronplug",
+  "license": "Unlicense",
+  "keywords": [
+    "aaron",
+    "cli",
+    "tool",
+    "books",
+    "papers"
+  ],
+  "interface": {
+    "displayName": "aaron (CLI tool)",
+    "shortDescription": "Bash-invocable book/paper fetcher",
+    "longDescription": "Provides the `aaron` command. Agents invoke it via shell. Not a skill pack, not MCP.",
+    "developerName": "VeigaPunk",
+    "websiteURL": "https://github.com/VeigaPunk/aaronplug"
+  }
+}

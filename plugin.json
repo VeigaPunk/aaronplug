@@ -1,0 +1,16 @@
+{
+  "name": "aaronplug",
+  "version": "0.4.0",
+  "description": "aaron CLI tool — Bash-invocable book/paper fetcher for scout (not an agent, not a skill, not MCP)",
+  "author": {
+    "name": "VeigaPunk"
+  },
+  "repository": "https://github.com/VeigaPunk/aaronplug",
+  "homepage": "https://github.com/VeigaPunk/aaronplug",
+  "keywords": [
+    "aaron",
+    "cli",
+    "tool",
+    "scout"
+  ]
+}
