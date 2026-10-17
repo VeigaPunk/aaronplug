@@ -14,6 +14,8 @@ Stdout is JSON. Default download dir: `~/aaron-library`.
 
 See [TOOL.md](./TOOL.md) for the tool contract.
 
+**Wiki:** [Devin wiki](https://app.devin.ai/org/veigapunk/wiki/VeigaPunk/aaronplug?branch=main)
+
 ## Install (fnm + Node only)
 
 ```bash
